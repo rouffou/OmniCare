@@ -4,7 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using OmniCare.Modules.Agenda.Features.CancelAppointment;
 using OmniCare.Modules.Agenda.Features.ChangeAppointmentStatus;
 using OmniCare.Modules.Agenda.Features.DefineAppointmentType;
+using OmniCare.Modules.Agenda.Features.GetCabinetSchedule;
 using OmniCare.Modules.Agenda.Features.GetPractitionerSchedule;
+using OmniCare.Modules.Agenda.Features.RescheduleAppointment;
 using OmniCare.Modules.Agenda.Features.ScheduleAppointment;
 using OmniCare.Modules.Agenda.Infrastructure.Persistence;
 
@@ -26,9 +28,11 @@ public static class AgendaModule
     {
         app.MapDefineAppointmentType();
         app.MapScheduleAppointment();
+        app.MapRescheduleAppointment();
         app.MapCancelAppointment();
         app.MapChangeAppointmentStatus();
         app.MapGetPractitionerSchedule();
+        app.MapGetCabinetSchedule();
         return app;
     }
 }
