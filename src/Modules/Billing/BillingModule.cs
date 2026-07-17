@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using OmniCare.Modules.Billing.Features.CancelInvoice;
 using OmniCare.Modules.Billing.Features.GenerateInvoice;
 using OmniCare.Modules.Billing.Features.GetInvoiceById;
+using OmniCare.Modules.Billing.Features.ListPatientInvoices;
 using OmniCare.Modules.Billing.Features.MarkInvoicePaid;
 using OmniCare.Modules.Billing.Infrastructure.Persistence;
 using OmniCare.Modules.Billing.Infrastructure.Services;
@@ -28,6 +30,8 @@ public static class BillingModule
         app.MapGenerateInvoice();
         app.MapGetInvoiceById();
         app.MapMarkInvoicePaid();
+        app.MapCancelInvoice();
+        app.MapListPatientInvoices();
         return app;
     }
 }
