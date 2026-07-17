@@ -11,7 +11,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
     <!-- Pin transitif : la 2.1.11 tirée par EF Core Sqlite a une vulnérabilité connue (NU1903) -->
-    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.12" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <!-- Outillage migrations (design-time uniquement) -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
 
