@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="Mediarq" />
+    <PackageReference Include="Mediarq.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Modules\Patients\OmniCare.Modules.Patients.csproj" />
+    <ProjectReference Include="..\Modules\Agenda\OmniCare.Modules.Agenda.csproj" />
+  </ItemGroup>
+
+</Project>

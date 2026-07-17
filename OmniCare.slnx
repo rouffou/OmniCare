@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Api/OmniCare.Api.csproj" />
+    <Project Path="src/BuildingBlocks/SharedKernel/OmniCare.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/Patients/OmniCare.Modules.Patients.csproj" />
+    <Project Path="src/Modules/Agenda/OmniCare.Modules.Agenda.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OmniCare.UnitTests/OmniCare.UnitTests.csproj" />
+  </Folder>
+</Solution>

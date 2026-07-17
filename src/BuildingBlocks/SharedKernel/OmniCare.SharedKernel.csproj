@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- Mediarq.Core uniquement : INotification (Domain Events), IPipelineBehavior, Result -->
+    <PackageReference Include="Mediarq.Core" />
+    <!-- Base commune des DbContext de modules (dispatch des Domain Events) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+
+</Project>
