@@ -1,0 +1,39 @@
+using Mediarq.Core.Common.Requests.Command;
+using Mediarq.Core.Common.Results;
+using Microsoft.EntityFrameworkCore;
+using OmniCare.Modules.Patients.Domain.ValueObjects;
+using OmniCare.Modules.Patients.Infrastructure.Persistence;
+using OmniCare.SharedKernel.Application;
+using OmniCare.SharedKernel.Domain;
+
+namespace OmniCare.Modules.Patients.Features.UpdatePatientContact;
+
+public class UpdatePatientContactHandler : ICommandHandler<UpdatePatientContactCommand, Result<Guid>>
+{
+    private readonly IPatientsDbContext _context;
+
+    public UpdatePatientContactHandler(IPatientsDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<Result<Guid>> Handle(UpdatePatientContactCommand request, CancellationToken cancellationToken = default)
+    {
+        var patient = await _context.Patients
+            .FirstOrDefaultAsync(p => p.Id == request.PatientId, cancellationToken);
+        if (patient is null)
+            return BusinessFailures.NotFound<Guid>($"Patient {request.PatientId} introuvable.");
+
+        try
+        {
+            patient.UpdateContactDetails(ContactDetails.Create(
+                request.Email, request.Phone, request.AddressLine, request.PostalCode, request.City));
+        }
+        catch (DomainException ex)
+        {
+            return BusinessFailures.Rule<Guid>(ex.Message);
+        }
+
+        return Result.Success(patient.Id);
+    }
+}
