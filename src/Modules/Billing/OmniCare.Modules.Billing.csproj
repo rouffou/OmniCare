@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- Endpoints Minimal API définis dans le module (Vertical Slice) -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mediarq" />
+    <PackageReference Include="Mediarq.EntityFrameworkCore" />
+    <!-- Commandes de facturation protégées contre les doublons (cf. cahier des charges §4.3) -->
+    <PackageReference Include="Mediarq.Idempotency" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildingBlocks\SharedKernel\OmniCare.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>
