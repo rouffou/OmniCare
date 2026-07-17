@@ -1,5 +1,6 @@
 using Mediarq.UnitOfWork;
 using OmniCare.Modules.Agenda.Infrastructure.Persistence;
+using OmniCare.Modules.Billing.Infrastructure.Persistence;
 using OmniCare.Modules.Patients.Infrastructure.Persistence;
 
 namespace OmniCare.Api.Infrastructure;
@@ -17,11 +18,13 @@ public sealed class ModularUnitOfWork : IUnitOfWork
 {
     private readonly PatientsDbContext _patients;
     private readonly AgendaDbContext _agenda;
+    private readonly BillingDbContext _billing;
 
-    public ModularUnitOfWork(PatientsDbContext patients, AgendaDbContext agenda)
+    public ModularUnitOfWork(PatientsDbContext patients, AgendaDbContext agenda, BillingDbContext billing)
     {
         _patients = patients;
         _agenda = agenda;
+        _billing = billing;
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -31,6 +34,8 @@ public sealed class ModularUnitOfWork : IUnitOfWork
             written += await _patients.SaveChangesAsync(cancellationToken);
         if (_agenda.ChangeTracker.HasChanges())
             written += await _agenda.SaveChangesAsync(cancellationToken);
+        if (_billing.ChangeTracker.HasChanges())
+            written += await _billing.SaveChangesAsync(cancellationToken);
         return written;
     }
 }

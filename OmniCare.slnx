@@ -6,6 +6,7 @@
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/Patients/OmniCare.Modules.Patients.csproj" />
     <Project Path="src/Modules/Agenda/OmniCare.Modules.Agenda.csproj" />
+    <Project Path="src/Modules/Billing/OmniCare.Modules.Billing.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/OmniCare.UnitTests/OmniCare.UnitTests.csproj" />

@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Modules\Patients\OmniCare.Modules.Patients.csproj" />
     <ProjectReference Include="..\Modules\Agenda\OmniCare.Modules.Agenda.csproj" />
+    <ProjectReference Include="..\Modules\Billing\OmniCare.Modules.Billing.csproj" />
   </ItemGroup>
 
 </Project>

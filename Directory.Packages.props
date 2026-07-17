@@ -4,6 +4,7 @@
     <PackageVersion Include="Mediarq" Version="1.0.0" />
     <PackageVersion Include="Mediarq.Core" Version="1.0.0" />
     <PackageVersion Include="Mediarq.EntityFrameworkCore" Version="1.0.0" />
+    <PackageVersion Include="Mediarq.Idempotency" Version="1.0.0" />
 
     <!-- Persistance -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
