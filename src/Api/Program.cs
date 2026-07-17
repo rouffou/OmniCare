@@ -66,14 +66,15 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
-// Dev uniquement : création du schéma sans migrations. À remplacer par des
-// migrations EF Core avant tout déploiement.
+// Dev uniquement : application automatique des migrations EF Core au démarrage.
+// En production, les migrations seront appliquées par le pipeline de déploiement
+// (dotnet ef database update), jamais par l'application elle-même.
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
-    scope.ServiceProvider.GetRequiredService<AuditDbContext>().Database.EnsureCreated();
-    scope.ServiceProvider.GetRequiredService<PatientsDbContext>().Database.EnsureCreated();
-    scope.ServiceProvider.GetRequiredService<AgendaDbContext>().Database.EnsureCreated();
+    scope.ServiceProvider.GetRequiredService<AuditDbContext>().Database.Migrate();
+    scope.ServiceProvider.GetRequiredService<PatientsDbContext>().Database.Migrate();
+    scope.ServiceProvider.GetRequiredService<AgendaDbContext>().Database.Migrate();
 }
 
 app.MapPatientsModule();

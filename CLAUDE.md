@@ -71,7 +71,10 @@ La solution est `OmniCare.slnx` (format slnx, SDK .NET 10) :
 - `dotnet build OmniCare.slnx` — build de la solution
 - `dotnet test OmniCare.slnx` — exécution des tests (projet `tests/OmniCare.UnitTests`, xUnit)
 - `dotnet test --filter FullyQualifiedName~<NomDuTest>` — exécuter un test unique
-- `dotnet run --project src/Api` — lancer l'API localement (http://localhost:5210, une base SQLite par module : `omnicare-patients.db`, `omnicare-agenda.db`, `omnicare-audit.db`, schéma créé via `EnsureCreated` en dev — à remplacer par des migrations EF Core avant tout déploiement)
+- `dotnet run --project src/Api` — lancer l'API localement (http://localhost:5210, une base SQLite par module : `omnicare-patients.db`, `omnicare-agenda.db`, `omnicare-audit.db` ; les migrations EF Core sont appliquées automatiquement au démarrage en dev)
+- Migrations EF Core (`dotnet-ef` en tool local, cf. `.config/dotnet-tools.json`) — après tout changement de modèle :
+  `dotnet ef migrations add <Nom> --project src/Modules/<Module> --startup-project src/Api --context <Module>DbContext --output-dir Infrastructure/Persistence/Migrations`
+  (pour l'audit : `--project src/Api --context AuditDbContext --output-dir Infrastructure/Auditing/Migrations`)
 - `dotnet format OmniCare.slnx` — formatage (règles dans `.editorconfig`)
 
 Structure réelle :
