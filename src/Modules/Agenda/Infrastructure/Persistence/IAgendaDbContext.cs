@@ -8,6 +8,7 @@ public interface IAgendaDbContext
 {
     DbSet<Appointment> Appointments { get; }
     DbSet<AppointmentType> AppointmentTypes { get; }
+    DbSet<WaitlistEntry> WaitlistEntries { get; }
     DbSet<Room> Rooms { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -15,6 +15,7 @@ public sealed class AgendaDbContext : ModuleDbContext, IAgendaDbContext
 
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<AppointmentType> AppointmentTypes => Set<AppointmentType>();
+    public DbSet<WaitlistEntry> WaitlistEntries => Set<WaitlistEntry>();
     public DbSet<Room> Rooms => Set<Room>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -64,6 +65,18 @@ public sealed class AgendaDbContext : ModuleDbContext, IAgendaDbContext
             type.HasIndex(t => new { t.Profession, t.Name }).IsUnique();
         });
 
+        modelBuilder.Entity<WaitlistEntry>(entry =>
+        {
+            entry.ToTable("WaitlistEntries");
+            entry.HasKey(w => w.Id);
+            entry.Property(w => w.Notes).HasMaxLength(500);
+            // Ticks UTC : ces colonnes portent le tri (JoinedOn) et pourront filtrer par plage.
+            entry.Property(w => w.RequestedFrom).HasConversion<UtcTicksConverter>();
+            entry.Property(w => w.RequestedTo).HasConversion<UtcTicksConverter>();
+            entry.Property(w => w.JoinedOn).HasConversion<UtcTicksConverter>();
+            entry.HasIndex(w => new { w.PractitionerId, w.Status, w.JoinedOn });
+        });
+        
         modelBuilder.Entity<Room>(room =>
         {
             room.ToTable("Rooms");
