@@ -5,6 +5,7 @@ using OmniCare.Modules.Agenda.Features.CancelAppointment;
 using OmniCare.Modules.Agenda.Features.ChangeAppointmentStatus;
 using OmniCare.Modules.Agenda.Features.DefineAppointmentType;
 using OmniCare.Modules.Agenda.Features.FulfillWaitlistEntry;
+using OmniCare.Modules.Agenda.Features.DefineRoom;
 using OmniCare.Modules.Agenda.Features.GetCabinetSchedule;
 using OmniCare.Modules.Agenda.Features.GetPractitionerSchedule;
 using OmniCare.Modules.Agenda.Features.GetWaitlist;
@@ -32,6 +33,7 @@ public static class AgendaModule
     public static IEndpointRouteBuilder MapAgendaModule(this IEndpointRouteBuilder app)
     {
         app.MapDefineAppointmentType();
+        app.MapDefineRoom();
         app.MapScheduleAppointment();
         app.MapScheduleAppointmentSeries();
         app.MapRescheduleAppointment();

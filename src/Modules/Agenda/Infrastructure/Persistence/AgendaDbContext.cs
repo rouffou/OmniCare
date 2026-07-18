@@ -16,6 +16,7 @@ public sealed class AgendaDbContext : ModuleDbContext, IAgendaDbContext
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<AppointmentType> AppointmentTypes => Set<AppointmentType>();
     public DbSet<WaitlistEntry> WaitlistEntries => Set<WaitlistEntry>();
+    public DbSet<Room> Rooms => Set<Room>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,11 +40,17 @@ public sealed class AgendaDbContext : ModuleDbContext, IAgendaDbContext
             appointment.Property(a => a.CancellationReason).HasMaxLength(500);
             appointment.HasIndex(a => a.PractitionerId);
             appointment.HasIndex(a => a.PatientId);
+            appointment.HasIndex(a => a.RoomId);
             appointment.HasIndex(a => a.SeriesId);
 
             appointment.HasOne<AppointmentType>()
                 .WithMany()
                 .HasForeignKey(a => a.AppointmentTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            appointment.HasOne<Room>()
+                .WithMany()
+                .HasForeignKey(a => a.RoomId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -68,6 +75,14 @@ public sealed class AgendaDbContext : ModuleDbContext, IAgendaDbContext
             entry.Property(w => w.RequestedTo).HasConversion<UtcTicksConverter>();
             entry.Property(w => w.JoinedOn).HasConversion<UtcTicksConverter>();
             entry.HasIndex(w => new { w.PractitionerId, w.Status, w.JoinedOn });
+        });
+        
+        modelBuilder.Entity<Room>(room =>
+        {
+            room.ToTable("Rooms");
+            room.HasKey(r => r.Id);
+            room.Property(r => r.Name).HasMaxLength(100);
+            room.HasIndex(r => r.Name).IsUnique();
         });
 
         UseClientGeneratedIds(modelBuilder);
