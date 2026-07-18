@@ -11,4 +11,13 @@ namespace OmniCare.SharedKernel.Application;
 public interface IPatientDirectory
 {
     Task<bool> ExistsAsync(Guid patientId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Statut BIM/OMNIO du patient (régime préférentiel), <see langword="false"/> si le
+    /// patient n'a pas de mutuelle affiliée ou n'en bénéficie pas. Ne détermine aucun
+    /// montant de remboursement — le calcul du taux réel relève de la nomenclature INAMI
+    /// (référentiel d'actes, hors périmètre de ce contrat) ; ce statut sert uniquement à
+    /// tracer et informer la décision prise par le secrétariat au moment de facturer.
+    /// </summary>
+    Task<bool> HasPreferentialRateAsync(Guid patientId, CancellationToken cancellationToken = default);
 }

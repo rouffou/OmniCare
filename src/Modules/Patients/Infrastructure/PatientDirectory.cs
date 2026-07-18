@@ -16,4 +16,12 @@ internal sealed class PatientDirectory : IPatientDirectory
 
     public Task<bool> ExistsAsync(Guid patientId, CancellationToken cancellationToken = default) =>
         _context.Patients.AnyAsync(p => p.Id == patientId, cancellationToken);
+
+    public async Task<bool> HasPreferentialRateAsync(Guid patientId, CancellationToken cancellationToken = default)
+    {
+        var patient = await _context.Patients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == patientId, cancellationToken);
+        return patient?.Mutuality?.HasPreferentialRate ?? false;
+    }
 }

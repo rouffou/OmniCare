@@ -22,6 +22,20 @@ public sealed class Invoice : AggregateRoot
     /// <summary>Assurabilité vérifiée via MyCareNet au moment de l'émission.</summary>
     public bool InsuredAtIssue { get; private set; }
 
+    /// <summary>Statut BIM/OMNIO du patient au moment de l'émission (snapshot informatif,
+    /// ne détermine aucun montant — la part patient reste un montant fourni par l'appelant).</summary>
+    public bool PreferentialRateAtIssue { get; private set; }
+
+    /// <summary>Part facturée à l'organisme assureur (tiers payant).</summary>
+    public Amount MutualityShare { get; private set; }
+
+    /// <summary>Part à charge du patient (ticket modérateur).</summary>
+    public Amount PatientShare { get; private set; }
+
+    /// <summary>Tiers payant appliqué : la part mutuelle est réclamée directement à
+    /// l'organisme assureur, le patient ne règle que <see cref="PatientShare"/>.</summary>
+    public bool ThirdPartyPayer { get; private set; }
+
     public InvoiceStatus Status { get; private set; }
     public DateTimeOffset IssuedOn { get; private set; }
     public DateTimeOffset? PaidOn { get; private set; }
@@ -39,7 +53,10 @@ public sealed class Invoice : AggregateRoot
         Guid practitionerId,
         InamiCode code,
         Amount total,
-        bool insuredAtIssue)
+        bool insuredAtIssue,
+        bool preferentialRateAtIssue,
+        Amount patientShare,
+        bool thirdPartyPayer)
     {
         if (patientId == Guid.Empty)
             throw new DomainException("Une facture doit être rattachée à un patient.");
@@ -47,6 +64,12 @@ public sealed class Invoice : AggregateRoot
             throw new DomainException("Une facture doit être rattachée à un praticien.");
         if (total.Value <= 0)
             throw new DomainException("Une facture doit porter sur un montant strictement positif.");
+        if (patientShare.Value > total.Value)
+            throw new DomainException("La part patient ne peut pas dépasser le montant total de la facture.");
+
+        var mutualityShare = total - patientShare;
+        if (thirdPartyPayer && mutualityShare.Value <= 0)
+            throw new DomainException("Le tiers payant suppose qu'une part soit réclamée à l'organisme assureur.");
 
         var invoice = new Invoice
         {
@@ -55,6 +78,10 @@ public sealed class Invoice : AggregateRoot
             Code = code,
             Total = total,
             InsuredAtIssue = insuredAtIssue,
+            PreferentialRateAtIssue = preferentialRateAtIssue,
+            PatientShare = patientShare,
+            MutualityShare = mutualityShare,
+            ThirdPartyPayer = thirdPartyPayer,
             Status = InvoiceStatus.Issued,
             IssuedOn = DateTimeOffset.UtcNow,
         };
