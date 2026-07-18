@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OmniCare.Modules.Billing.Features.CancelInvoice;
+using OmniCare.Modules.Billing.Features.DefineActCatalogEntry;
 using OmniCare.Modules.Billing.Features.GenerateInvoice;
 using OmniCare.Modules.Billing.Features.GetInvoiceById;
 using OmniCare.Modules.Billing.Features.ListPatientInvoices;
@@ -27,6 +28,7 @@ public static class BillingModule
 
     public static IEndpointRouteBuilder MapBillingModule(this IEndpointRouteBuilder app)
     {
+        app.MapDefineActCatalogEntry();
         app.MapGenerateInvoice();
         app.MapGetInvoiceById();
         app.MapMarkInvoicePaid();

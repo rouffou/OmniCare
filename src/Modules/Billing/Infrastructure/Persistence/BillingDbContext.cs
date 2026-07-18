@@ -15,6 +15,7 @@ public sealed class BillingDbContext : ModuleDbContext, IBillingDbContext
     }
 
     public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<ActCatalogEntry> ActCatalogEntries => Set<ActCatalogEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +45,29 @@ public sealed class BillingDbContext : ModuleDbContext, IBillingDbContext
             invoice.HasIndex(i => i.PatientId);
             invoice.HasIndex(i => new { i.PractitionerId, i.IssuedOn });
             invoice.HasIndex(i => i.Status);
+        });
+
+        modelBuilder.Entity<ActCatalogEntry>(entry =>
+        {
+            entry.ToTable("ActCatalogEntries");
+            entry.HasKey(e => e.Id);
+
+            entry.Property(e => e.Profession)
+                .HasConversion(p => p.Code, code => HealthProfession.FromCode(code))
+                .HasMaxLength(20);
+
+            entry.Property(e => e.Code)
+                .HasConversion(c => c.Value, s => InamiCode.Create(s))
+                .HasMaxLength(6)
+                .HasColumnName("InamiCode");
+
+            entry.Property(e => e.Label).HasMaxLength(200);
+
+            entry.Property(e => e.DefaultTariff)
+                .HasConversion(a => a.Value, v => Amount.Create(v))
+                .HasColumnType("decimal(10,2)");
+
+            entry.HasIndex(e => new { e.Profession, e.Code }).IsUnique();
         });
 
         UseClientGeneratedIds(modelBuilder);

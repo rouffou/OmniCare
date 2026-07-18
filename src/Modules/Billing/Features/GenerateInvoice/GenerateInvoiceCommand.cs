@@ -15,6 +15,7 @@ namespace OmniCare.Modules.Billing.Features.GenerateInvoice;
 public record GenerateInvoiceCommand(
     Guid PatientId,
     Guid PractitionerId,
+    string ProfessionCode,
     string InamiCodeStr,
     decimal BaseAmount,
     string IdempotencyKey
