@@ -20,4 +20,7 @@ public record InvoiceDto(
     DateTimeOffset IssuedOn,
     DateTimeOffset? PaidOn,
     string? PaymentMethod,
-    string? CancellationReason);
+    string? CancellationReason,
+    string TransmissionStatus,
+    DateTimeOffset? TransmittedOn,
+    string? RejectionReason);

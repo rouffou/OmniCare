@@ -10,6 +10,8 @@
     <PackageReference Include="Mediarq.EntityFrameworkCore" />
     <!-- Commandes de facturation protégées contre les doublons (cf. cahier des charges §4.3) -->
     <PackageReference Include="Mediarq.Idempotency" />
+    <!-- Outbox transactionnel pour InvoiceGeneratedEvent (fiabilité de la télétransmission) -->
+    <PackageReference Include="Mediarq.Outbox" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="FluentValidation" />

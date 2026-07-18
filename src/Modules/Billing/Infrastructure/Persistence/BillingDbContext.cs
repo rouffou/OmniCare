@@ -1,4 +1,5 @@
 using Mediarq.Core.Mediators;
+using Mediarq.Outbox;
 using Microsoft.EntityFrameworkCore;
 using OmniCare.Modules.Billing.Domain.Entities;
 using OmniCare.Modules.Billing.Domain.ValueObjects;
@@ -49,10 +50,12 @@ public sealed class BillingDbContext : ModuleDbContext, IBillingDbContext
 
             invoice.Property(i => i.PaymentMethod).HasMaxLength(50);
             invoice.Property(i => i.CancellationReason).HasMaxLength(500);
+            invoice.Property(i => i.RejectionReason).HasMaxLength(500);
 
             invoice.HasIndex(i => i.PatientId);
             invoice.HasIndex(i => new { i.PractitionerId, i.IssuedOn });
             invoice.HasIndex(i => i.Status);
+            invoice.HasIndex(i => i.TransmissionStatus);
         });
 
         modelBuilder.Entity<ActCatalogEntry>(entry =>
@@ -77,6 +80,8 @@ public sealed class BillingDbContext : ModuleDbContext, IBillingDbContext
 
             entry.HasIndex(e => new { e.Profession, e.Code }).IsUnique();
         });
+
+        modelBuilder.ApplyMediarqOutbox();
 
         UseClientGeneratedIds(modelBuilder);
     }

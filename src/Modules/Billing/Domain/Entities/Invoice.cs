@@ -42,6 +42,15 @@ public sealed class Invoice : AggregateRoot
     public string? PaymentMethod { get; private set; }
     public string? CancellationReason { get; private set; }
 
+    /// <summary>
+    /// Statut de la télétransmission de l'attestation de soins (eAttest) vers l'organisme
+    /// assureur — machine à états indépendante de <see cref="Status"/> (cahier des charges
+    /// §4.3 : suivi envoyée/acceptée/rejetée, gestion des rejets/corrections).
+    /// </summary>
+    public TransmissionStatus TransmissionStatus { get; private set; }
+    public DateTimeOffset? TransmittedOn { get; private set; }
+    public string? RejectionReason { get; private set; }
+
 #pragma warning disable CS8618 // Constructeur de matérialisation EF Core
     private Invoice()
     {
@@ -84,9 +93,11 @@ public sealed class Invoice : AggregateRoot
             ThirdPartyPayer = thirdPartyPayer,
             Status = InvoiceStatus.Issued,
             IssuedOn = DateTimeOffset.UtcNow,
+            TransmissionStatus = TransmissionStatus.NotSent,
         };
-        invoice.Raise(new InvoiceGeneratedEvent(
-            invoice.Id, patientId, practitionerId, code.Value, total.Value));
+        // InvoiceGeneratedEvent est mis en file via l'Outbox transactionnel par le handler
+        // (pas via Raise/publication in-memory) : la télétransmission ne doit jamais être
+        // perdue même si le processus s'arrête juste après le commit.
         return invoice;
     }
 
@@ -111,6 +122,49 @@ public sealed class Invoice : AggregateRoot
         CancellationReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
         Raise(new InvoiceCancelledEvent(Id, PatientId, CancellationReason));
     }
+
+    /// <summary>Appelé juste avant l'appel au service de télétransmission.</summary>
+    public void MarkTransmissionSent()
+    {
+        if (TransmissionStatus != TransmissionStatus.NotSent)
+            throw new DomainException(
+                $"Impossible de marquer une télétransmission envoyée depuis le statut {TransmissionStatus}.");
+        TransmissionStatus = TransmissionStatus.Sent;
+        TransmittedOn = DateTimeOffset.UtcNow;
+    }
+
+    public void MarkTransmissionAccepted()
+    {
+        if (TransmissionStatus != TransmissionStatus.Sent)
+            throw new DomainException(
+                $"Impossible d'accepter une télétransmission depuis le statut {TransmissionStatus}.");
+        TransmissionStatus = TransmissionStatus.Accepted;
+        RejectionReason = null;
+    }
+
+    public void MarkTransmissionRejected(string reason)
+    {
+        if (TransmissionStatus != TransmissionStatus.Sent)
+            throw new DomainException(
+                $"Impossible de rejeter une télétransmission depuis le statut {TransmissionStatus}.");
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new DomainException("Le motif de rejet est obligatoire.");
+        TransmissionStatus = TransmissionStatus.Rejected;
+        RejectionReason = reason.Trim();
+    }
+
+    /// <summary>Réinitialise une télétransmission rejetée pour permettre une nouvelle tentative
+    /// (correction effectuée en amont — cahier des charges §4.3, gestion des rejets).</summary>
+    public void RequestTransmissionRetry()
+    {
+        if (TransmissionStatus != TransmissionStatus.Rejected)
+            throw new DomainException(
+                $"Impossible de relancer une télétransmission depuis le statut {TransmissionStatus}.");
+        if (Status == InvoiceStatus.Cancelled)
+            throw new DomainException("Impossible de transmettre une facture annulée.");
+        TransmissionStatus = TransmissionStatus.NotSent;
+        RejectionReason = null;
+    }
 }
 
 public enum InvoiceStatus
@@ -118,4 +172,12 @@ public enum InvoiceStatus
     Issued = 0,
     Paid = 1,
     Cancelled = 2,
+}
+
+public enum TransmissionStatus
+{
+    NotSent = 0,
+    Sent = 1,
+    Accepted = 2,
+    Rejected = 3,
 }

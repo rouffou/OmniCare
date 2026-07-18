@@ -1,7 +1,9 @@
 using Mediarq.Core.Common.Requests.Command;
 using Mediarq.Core.Common.Results;
+using Mediarq.Outbox;
 using Microsoft.EntityFrameworkCore;
 using OmniCare.Modules.Billing.Domain.Entities;
+using OmniCare.Modules.Billing.Domain.Events;
 using OmniCare.Modules.Billing.Domain.ValueObjects;
 using OmniCare.Modules.Billing.Infrastructure.Persistence;
 using OmniCare.Modules.Billing.Infrastructure.Services;
@@ -16,12 +18,15 @@ public class GenerateInvoiceHandler : ICommandHandler<GenerateInvoiceCommand, Re
     private readonly IBillingDbContext _context;
     private readonly IMyCareNetService _myCareNet;
     private readonly IPatientDirectory _patients;
+    private readonly IOutbox _outbox;
 
-    public GenerateInvoiceHandler(IBillingDbContext context, IMyCareNetService myCareNet, IPatientDirectory patients)
+    public GenerateInvoiceHandler(
+        IBillingDbContext context, IMyCareNetService myCareNet, IPatientDirectory patients, IOutbox outbox)
     {
         _context = context;
         _myCareNet = myCareNet;
         _patients = patients;
+        _outbox = outbox;
     }
 
     public async Task<Result<Guid>> Handle(GenerateInvoiceCommand request, CancellationToken cancellationToken = default)
@@ -80,8 +85,13 @@ public class GenerateInvoiceHandler : ICommandHandler<GenerateInvoiceCommand, Re
         }
 
         _context.Invoices.Add(invoice);
-        // Commit par le UnitOfWorkBehavior (ITransactionalRequest) ; l'InvoiceGeneratedEvent
-        // est publié après SaveChanges — à basculer sur Mediarq.Outbox avec la télétransmission.
+
+        // Outbox transactionnel : l'événement est committé atomiquement avec la facture
+        // (même DbContext) et publié de façon fiable en arrière-plan par l'OutboxProcessor,
+        // qui déclenche la télétransmission eAttest — jamais perdu même en cas d'arrêt du
+        // processus juste après le commit.
+        _outbox.Enqueue(new InvoiceGeneratedEvent(
+            invoice.Id, invoice.PatientId, invoice.PractitionerId, invoice.Code.Value, invoice.Total.Value));
 
         return Result.Success(invoice.Id);
     }
