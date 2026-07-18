@@ -14,6 +14,10 @@ public sealed class Appointment : AggregateRoot
     public Guid PractitionerId { get; private set; }
     public Guid PatientId { get; private set; }
     public Guid AppointmentTypeId { get; private set; }
+
+    /// <summary>Identifiant commun aux rendez-vous d'une même série récurrente (null si occurrence isolée).</summary>
+    public Guid? SeriesId { get; private set; }
+
     public TimeSlot Slot { get; private set; }
     public AppointmentStatus Status { get; private set; }
     public string? Notes { get; private set; }
@@ -31,7 +35,8 @@ public sealed class Appointment : AggregateRoot
         Guid patientId,
         Guid appointmentTypeId,
         TimeSlot slot,
-        string? notes = null)
+        string? notes = null,
+        Guid? seriesId = null)
     {
         if (practitionerId == Guid.Empty)
             throw new DomainException("Un rendez-vous doit être rattaché à un praticien.");
@@ -45,6 +50,7 @@ public sealed class Appointment : AggregateRoot
             PractitionerId = practitionerId,
             PatientId = patientId,
             AppointmentTypeId = appointmentTypeId,
+            SeriesId = seriesId,
             Slot = slot,
             Status = AppointmentStatus.Planned,
             Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(),
