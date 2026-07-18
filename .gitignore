@@ -32,3 +32,10 @@ secrets.json
 ## OS
 .DS_Store
 Thumbs.db
+
+## Documents de travail internes (hors code) — conserves en local uniquement
+cahier_des_charges/
+CLAUDE.md
+.claude/
+*.local.md
+notes/
