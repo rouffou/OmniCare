@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using OmniCare.Modules.Patients.Infrastructure;
+using OmniCare.SharedKernel.Application;
 using OmniCare.Modules.Patients.Features.ArchivePatient;
 using OmniCare.Modules.Patients.Features.GetClinicalRecord;
 using OmniCare.Modules.Patients.Features.GetPatientById;
@@ -24,6 +26,8 @@ public static class PatientsModule
     {
         services.AddDbContext<PatientsDbContext>(configureDb);
         services.AddScoped<IPatientsDbContext>(sp => sp.GetRequiredService<PatientsDbContext>());
+        // Contrat public consommé par Agenda/Billing sans dépendance au Domain Patients.
+        services.AddScoped<IPatientDirectory, PatientDirectory>();
         return services;
     }
 

@@ -9,6 +9,7 @@ using OmniCare.Modules.Agenda.Features.GetCabinetSchedule;
 using OmniCare.Modules.Agenda.Features.GetPractitionerSchedule;
 using OmniCare.Modules.Agenda.Features.RescheduleAppointment;
 using OmniCare.Modules.Agenda.Features.ScheduleAppointment;
+using OmniCare.Modules.Agenda.Features.ScheduleAppointmentSeries;
 using OmniCare.Modules.Agenda.Infrastructure.Persistence;
 
 namespace OmniCare.Modules.Agenda;
@@ -30,6 +31,7 @@ public static class AgendaModule
         app.MapDefineAppointmentType();
         app.MapDefineRoom();
         app.MapScheduleAppointment();
+        app.MapScheduleAppointmentSeries();
         app.MapRescheduleAppointment();
         app.MapCancelAppointment();
         app.MapChangeAppointmentStatus();

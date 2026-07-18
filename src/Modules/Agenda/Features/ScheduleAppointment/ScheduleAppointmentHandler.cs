@@ -11,14 +11,19 @@ namespace OmniCare.Modules.Agenda.Features.ScheduleAppointment;
 public class ScheduleAppointmentHandler : ICommandHandler<ScheduleAppointmentCommand, Result<Guid>>
 {
     private readonly IAgendaDbContext _context;
+    private readonly IPatientDirectory _patients;
 
-    public ScheduleAppointmentHandler(IAgendaDbContext context)
+    public ScheduleAppointmentHandler(IAgendaDbContext context, IPatientDirectory patients)
     {
         _context = context;
+        _patients = patients;
     }
 
     public async Task<Result<Guid>> Handle(ScheduleAppointmentCommand request, CancellationToken cancellationToken = default)
     {
+        if (!await _patients.ExistsAsync(request.PatientId, cancellationToken))
+            return BusinessFailures.NotFound<Guid>($"Patient {request.PatientId} introuvable.");
+
         var type = await _context.AppointmentTypes
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == request.AppointmentTypeId, cancellationToken);

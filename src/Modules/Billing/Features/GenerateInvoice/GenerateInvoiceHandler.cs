@@ -14,15 +14,20 @@ public class GenerateInvoiceHandler : ICommandHandler<GenerateInvoiceCommand, Re
 {
     private readonly IBillingDbContext _context;
     private readonly IMyCareNetService _myCareNet;
+    private readonly IPatientDirectory _patients;
 
-    public GenerateInvoiceHandler(IBillingDbContext context, IMyCareNetService myCareNet)
+    public GenerateInvoiceHandler(IBillingDbContext context, IMyCareNetService myCareNet, IPatientDirectory patients)
     {
         _context = context;
         _myCareNet = myCareNet;
+        _patients = patients;
     }
 
     public async Task<Result<Guid>> Handle(GenerateInvoiceCommand request, CancellationToken cancellationToken = default)
     {
+        if (!await _patients.ExistsAsync(request.PatientId, cancellationToken))
+            return BusinessFailures.NotFound<Guid>($"Patient {request.PatientId} introuvable.");
+
         // Validation métier via les Value Objects du Domaine (la validité du code pour
         // la profession du praticien relèvera du référentiel d'actes configurable).
         InamiCode code;

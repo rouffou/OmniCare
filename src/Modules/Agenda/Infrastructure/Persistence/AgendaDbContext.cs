@@ -40,6 +40,7 @@ public sealed class AgendaDbContext : ModuleDbContext, IAgendaDbContext
             appointment.HasIndex(a => a.PractitionerId);
             appointment.HasIndex(a => a.PatientId);
             appointment.HasIndex(a => a.RoomId);
+            appointment.HasIndex(a => a.SeriesId);
 
             appointment.HasOne<AppointmentType>()
                 .WithMany()
