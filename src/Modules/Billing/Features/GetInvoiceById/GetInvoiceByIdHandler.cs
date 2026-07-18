@@ -39,6 +39,9 @@ public class GetInvoiceByIdHandler : IQueryHandler<GetInvoiceByIdQuery, Result<I
             invoice.IssuedOn,
             invoice.PaidOn,
             invoice.PaymentMethod,
-            invoice.CancellationReason));
+            invoice.CancellationReason,
+            invoice.TransmissionStatus.ToString(),
+            invoice.TransmittedOn,
+            invoice.RejectionReason));
     }
 }

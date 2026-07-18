@@ -7,6 +7,7 @@ using OmniCare.Modules.Billing.Features.GenerateInvoice;
 using OmniCare.Modules.Billing.Features.GetInvoiceById;
 using OmniCare.Modules.Billing.Features.ListPatientInvoices;
 using OmniCare.Modules.Billing.Features.MarkInvoicePaid;
+using OmniCare.Modules.Billing.Features.RetryInvoiceTransmission;
 using OmniCare.Modules.Billing.Infrastructure.Persistence;
 using OmniCare.Modules.Billing.Infrastructure.Services;
 
@@ -23,6 +24,8 @@ public static class BillingModule
         services.AddScoped<IBillingDbContext>(sp => sp.GetRequiredService<BillingDbContext>());
         // Client MyCareNet factice en attendant l'intégration réelle (Phase 2, Mediarq.Polly).
         services.AddScoped<IMyCareNetService, FakeMyCareNetService>();
+        // Idem pour la télétransmission eAttest — accepte systématiquement en attendant l'accès eHealth réel.
+        services.AddScoped<IEHealthTransmissionService, FakeEHealthTransmissionService>();
         return services;
     }
 
@@ -34,6 +37,7 @@ public static class BillingModule
         app.MapMarkInvoicePaid();
         app.MapCancelInvoice();
         app.MapListPatientInvoices();
+        app.MapRetryInvoiceTransmission();
         return app;
     }
 }

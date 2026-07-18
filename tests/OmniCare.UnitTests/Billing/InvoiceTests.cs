@@ -14,14 +14,15 @@ public class InvoiceTests
         insuredAtIssue: true, preferentialRateAtIssue: false, patientShare: Amount.Create(25.50m), thirdPartyPayer: false);
 
     [Fact]
-    public void CreateNew_issues_invoice_and_raises_event()
+    public void CreateNew_issues_invoice_with_pending_transmission()
     {
         var invoice = NewInvoice();
         Assert.Equal(InvoiceStatus.Issued, invoice.Status);
         Assert.Equal(25.50m, invoice.Total.Value);
-        var generated = Assert.Single(invoice.DomainEvents.OfType<InvoiceGeneratedEvent>());
-        Assert.Equal(invoice.Id, generated.InvoiceId);
-        Assert.Equal("560011", generated.InamiCode);
+        // InvoiceGeneratedEvent est mis en file via l'Outbox par le handler (fiabilité
+        // de la télétransmission), pas levé par l'agrégat — DomainEvents reste vide ici.
+        Assert.Empty(invoice.DomainEvents.OfType<InvoiceGeneratedEvent>());
+        Assert.Equal(TransmissionStatus.NotSent, invoice.TransmissionStatus);
     }
 
     [Fact]
@@ -99,6 +100,79 @@ public class InvoiceTests
         Assert.Equal(InvoiceStatus.Cancelled, invoice.Status);
         Assert.Equal("Erreur de code INAMI", invoice.CancellationReason);
         Assert.Throws<DomainException>(() => invoice.MarkAsPaid("Cash"));
+    }
+
+    [Fact]
+    public void Transmission_happy_path_sent_then_accepted()
+    {
+        var invoice = NewInvoice();
+        invoice.MarkTransmissionSent();
+        Assert.Equal(TransmissionStatus.Sent, invoice.TransmissionStatus);
+        Assert.NotNull(invoice.TransmittedOn);
+
+        invoice.MarkTransmissionAccepted();
+        Assert.Equal(TransmissionStatus.Accepted, invoice.TransmissionStatus);
+        Assert.Null(invoice.RejectionReason);
+    }
+
+    [Fact]
+    public void Transmission_rejected_records_reason()
+    {
+        var invoice = NewInvoice();
+        invoice.MarkTransmissionSent();
+        invoice.MarkTransmissionRejected("Code INAMI invalide pour ce patient.");
+        Assert.Equal(TransmissionStatus.Rejected, invoice.TransmissionStatus);
+        Assert.Equal("Code INAMI invalide pour ce patient.", invoice.RejectionReason);
+    }
+
+    [Fact]
+    public void Transmission_cannot_skip_sent_state()
+    {
+        var invoice = NewInvoice();
+        Assert.Throws<DomainException>(() => invoice.MarkTransmissionAccepted());
+        Assert.Throws<DomainException>(() => invoice.MarkTransmissionRejected("motif"));
+    }
+
+    [Fact]
+    public void Transmission_cannot_be_sent_twice()
+    {
+        var invoice = NewInvoice();
+        invoice.MarkTransmissionSent();
+        Assert.Throws<DomainException>(() => invoice.MarkTransmissionSent());
+    }
+
+    [Fact]
+    public void RequestTransmissionRetry_resets_rejected_to_not_sent()
+    {
+        var invoice = NewInvoice();
+        invoice.MarkTransmissionSent();
+        invoice.MarkTransmissionRejected("motif");
+
+        invoice.RequestTransmissionRetry();
+
+        Assert.Equal(TransmissionStatus.NotSent, invoice.TransmissionStatus);
+        Assert.Null(invoice.RejectionReason);
+        // Une nouvelle tentative doit pouvoir suivre le cycle normal.
+        invoice.MarkTransmissionSent();
+        Assert.Equal(TransmissionStatus.Sent, invoice.TransmissionStatus);
+    }
+
+    [Fact]
+    public void RequestTransmissionRetry_requires_rejected_state()
+    {
+        var invoice = NewInvoice();
+        Assert.Throws<DomainException>(() => invoice.RequestTransmissionRetry());
+    }
+
+    [Fact]
+    public void RequestTransmissionRetry_refuses_cancelled_invoice()
+    {
+        var invoice = NewInvoice();
+        invoice.MarkTransmissionSent();
+        invoice.MarkTransmissionRejected("motif");
+        invoice.Cancel("Erreur de facturation");
+
+        Assert.Throws<DomainException>(() => invoice.RequestTransmissionRetry());
     }
 }
 

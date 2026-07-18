@@ -1,6 +1,7 @@
 using FluentValidation;
 using Mediarq.Extensions;
 using Mediarq.FluentValidation;
+using Mediarq.Outbox;
 using Mediarq.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using OmniCare.Api.Infrastructure;
@@ -73,6 +74,11 @@ builder.Services.AddAgendaModule(o => o.UseSqlite(
     builder.Configuration.GetConnectionString("Agenda") ?? "Data Source=omnicare-agenda.db"));
 builder.Services.AddBillingModule(o => o.UseSqlite(
     builder.Configuration.GetConnectionString("Billing") ?? "Data Source=omnicare-billing.db"));
+
+// Outbox transactionnel pour InvoiceGeneratedEvent (télétransmission eAttest fiable —
+// cf. GenerateInvoiceHandler). Intervalle court en dev pour un retour rapide ; à ajuster
+// en production selon le volume de facturation.
+builder.Services.AddMediarqOutbox<BillingDbContext>(o => o.PollingInterval = TimeSpan.FromSeconds(3));
 
 var app = builder.Build();
 
