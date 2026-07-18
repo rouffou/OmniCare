@@ -22,7 +22,6 @@ dotnet run --project src/Api # http://localhost:5210 — migrations appliquées 
 
 | Dossier | Contenu |
 |---|---|
-| `cahier_des_charges/` | Cahier des charges fonctionnel + architecture technique de référence |
 | `src/BuildingBlocks/SharedKernel/` | Primitives DDD, value objects transverses (NISS, `InamiCode`, `HealthProfession`), audit trail |
 | `src/Modules/{Patients,Agenda,Billing}/` | Modules métier (Vertical Slice : `Domain/`, `Features/`, `Infrastructure/`) |
 | `src/Api/` | Hôte Minimal API (pipeline Mediarq : logging → validation → audit → unit of work) |
