@@ -15,5 +15,6 @@ public record ScheduleAppointmentCommand(
     Guid AppointmentTypeId,
     DateTimeOffset StartUtc,
     DateTimeOffset? EndUtc,
-    string? Notes
+    string? Notes,
+    Guid? RoomId = null
 ) : ICommand<Result<Guid>>, ITransactionalRequest;
