@@ -95,7 +95,6 @@ namespace OmniCare.Modules.Agenda.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("OmniCare.Modules.Agenda.Domain.Entities.WaitlistEntry", b =>
-            modelBuilder.Entity("OmniCare.Modules.Agenda.Domain.Entities.Room", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
@@ -130,6 +129,13 @@ namespace OmniCare.Modules.Agenda.Infrastructure.Persistence.Migrations
                     b.HasIndex("PractitionerId", "Status", "JoinedOn");
 
                     b.ToTable("WaitlistEntries", "agenda");
+                });
+
+            modelBuilder.Entity("OmniCare.Modules.Agenda.Domain.Entities.Room", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
