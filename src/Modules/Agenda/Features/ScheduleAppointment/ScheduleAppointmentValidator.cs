@@ -17,5 +17,6 @@ public class ScheduleAppointmentValidator : AbstractValidator<ScheduleAppointmen
             .When(x => x.EndUtc.HasValue)
             .WithMessage("La fin du rendez-vous doit être postérieure à son début.");
         RuleFor(x => x.Notes).MaximumLength(1000);
+        RuleFor(x => x.RoomId).NotEqual(Guid.Empty).When(x => x.RoomId.HasValue);
     }
 }

@@ -49,6 +49,18 @@ public class RescheduleAppointmentHandler : ICommandHandler<RescheduleAppointmen
             return BusinessFailures.Conflict<Guid>(
                 "Le praticien a déjà un rendez-vous sur ce créneau.");
 
+        if (appointment.RoomId.HasValue)
+        {
+            var roomIsBusy = await _context.Appointments.AnyAsync(a =>
+                a.Id != appointment.Id &&
+                a.RoomId == appointment.RoomId &&
+                (a.Status == AppointmentStatus.Planned || a.Status == AppointmentStatus.Confirmed) &&
+                a.Slot.Start < newSlot.End && newSlot.Start < a.Slot.End,
+                cancellationToken);
+            if (roomIsBusy)
+                return BusinessFailures.Conflict<Guid>("La salle réservée est déjà occupée sur ce créneau.");
+        }
+
         try
         {
             appointment.Reschedule(newSlot);

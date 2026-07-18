@@ -41,8 +41,28 @@ public class ScheduleAppointmentHandler : ICommandHandler<ScheduleAppointmentCom
             return BusinessFailures.Conflict<Guid>(
                 "Le praticien a déjà un rendez-vous sur ce créneau.");
 
+        if (request.RoomId.HasValue)
+        {
+            var room = await _context.Rooms
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == request.RoomId, cancellationToken);
+            if (room is null)
+                return BusinessFailures.NotFound<Guid>($"Salle {request.RoomId} introuvable.");
+            if (!room.IsActive)
+                return BusinessFailures.Rule<Guid>($"La salle « {room.Name} » est désactivée.");
+
+            var roomIsBusy = await _context.Appointments.AnyAsync(a =>
+                a.RoomId == request.RoomId &&
+                (a.Status == AppointmentStatus.Planned || a.Status == AppointmentStatus.Confirmed) &&
+                a.Slot.Start < slot.End && slot.Start < a.Slot.End,
+                cancellationToken);
+            if (roomIsBusy)
+                return BusinessFailures.Conflict<Guid>(
+                    $"La salle « {room.Name} » est déjà réservée sur ce créneau.");
+        }
+
         var appointment = Appointment.Schedule(
-            request.PractitionerId, request.PatientId, request.AppointmentTypeId, slot, request.Notes);
+            request.PractitionerId, request.PatientId, request.AppointmentTypeId, slot, request.Notes, roomId: request.RoomId);
 
         _context.Appointments.Add(appointment);
 
