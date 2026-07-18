@@ -38,6 +38,7 @@ public sealed class AgendaDbContext : ModuleDbContext, IAgendaDbContext
             appointment.Property(a => a.CancellationReason).HasMaxLength(500);
             appointment.HasIndex(a => a.PractitionerId);
             appointment.HasIndex(a => a.PatientId);
+            appointment.HasIndex(a => a.SeriesId);
 
             appointment.HasOne<AppointmentType>()
                 .WithMany()
