@@ -35,6 +35,14 @@ public sealed class BillingDbContext : ModuleDbContext, IBillingDbContext
                 .HasConversion(a => a.Value, v => Amount.Create(v))
                 .HasColumnType("decimal(10,2)");
 
+            invoice.Property(i => i.PatientShare)
+                .HasConversion(a => a.Value, v => Amount.Create(v))
+                .HasColumnType("decimal(10,2)");
+
+            invoice.Property(i => i.MutualityShare)
+                .HasConversion(a => a.Value, v => Amount.Create(v))
+                .HasColumnType("decimal(10,2)");
+
             // Ticks UTC : colonne triée/filtrée par plage de dates (SQLite ne traduit
             // pas les comparaisons sur DateTimeOffset).
             invoice.Property(i => i.IssuedOn).HasConversion<UtcTicksConverter>();

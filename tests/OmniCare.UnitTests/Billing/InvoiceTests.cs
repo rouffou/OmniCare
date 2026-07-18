@@ -10,7 +10,8 @@ namespace OmniCare.UnitTests.Billing;
 public class InvoiceTests
 {
     private static Invoice NewInvoice() => Invoice.CreateNew(
-        Guid.NewGuid(), Guid.NewGuid(), InamiCode.Create("560011"), Amount.Create(25.50m), insuredAtIssue: true);
+        Guid.NewGuid(), Guid.NewGuid(), InamiCode.Create("560011"), Amount.Create(25.50m),
+        insuredAtIssue: true, preferentialRateAtIssue: false, patientShare: Amount.Create(25.50m), thirdPartyPayer: false);
 
     [Fact]
     public void CreateNew_issues_invoice_and_raises_event()
@@ -27,12 +28,47 @@ public class InvoiceTests
     public void CreateNew_requires_patient_practitioner_and_positive_amount()
     {
         var code = InamiCode.Create("560011");
+        var ten = Amount.Create(10m);
         Assert.Throws<DomainException>(() =>
-            Invoice.CreateNew(Guid.Empty, Guid.NewGuid(), code, Amount.Create(10m), true));
+            Invoice.CreateNew(Guid.Empty, Guid.NewGuid(), code, ten, true, false, ten, false));
         Assert.Throws<DomainException>(() =>
-            Invoice.CreateNew(Guid.NewGuid(), Guid.Empty, code, Amount.Create(10m), true));
+            Invoice.CreateNew(Guid.NewGuid(), Guid.Empty, code, ten, true, false, ten, false));
         Assert.Throws<DomainException>(() =>
-            Invoice.CreateNew(Guid.NewGuid(), Guid.NewGuid(), code, Amount.Zero, true));
+            Invoice.CreateNew(Guid.NewGuid(), Guid.NewGuid(), code, Amount.Zero, true, false, Amount.Zero, false));
+    }
+
+    [Fact]
+    public void CreateNew_rejects_patient_share_greater_than_total()
+    {
+        var code = InamiCode.Create("560011");
+        Assert.Throws<DomainException>(() => Invoice.CreateNew(
+            Guid.NewGuid(), Guid.NewGuid(), code, Amount.Create(20m),
+            true, false, Amount.Create(25m), false));
+    }
+
+    [Fact]
+    public void CreateNew_computes_mutuality_share_under_third_party_payer()
+    {
+        var code = InamiCode.Create("560011");
+        var invoice = Invoice.CreateNew(
+            Guid.NewGuid(), Guid.NewGuid(), code, Amount.Create(25m),
+            insuredAtIssue: true, preferentialRateAtIssue: true,
+            patientShare: Amount.Create(5m), thirdPartyPayer: true);
+
+        Assert.Equal(5m, invoice.PatientShare.Value);
+        Assert.Equal(20m, invoice.MutualityShare.Value);
+        Assert.True(invoice.ThirdPartyPayer);
+        Assert.True(invoice.PreferentialRateAtIssue);
+    }
+
+    [Fact]
+    public void CreateNew_rejects_third_party_payer_when_patient_pays_everything()
+    {
+        var code = InamiCode.Create("560011");
+        var total = Amount.Create(25m);
+        Assert.Throws<DomainException>(() => Invoice.CreateNew(
+            Guid.NewGuid(), Guid.NewGuid(), code, total,
+            true, false, total, thirdPartyPayer: true));
     }
 
     [Fact]

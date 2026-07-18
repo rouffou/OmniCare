@@ -14,7 +14,9 @@ public static class GenerateInvoiceEndpoint
         Guid PractitionerId,
         string ProfessionCode,
         string InamiCodeStr,
-        decimal BaseAmount);
+        decimal BaseAmount,
+        decimal? PatientShareAmount = null,
+        bool ThirdPartyPayer = false);
 
     public static IEndpointRouteBuilder MapGenerateInvoice(this IEndpointRouteBuilder app)
     {
@@ -30,7 +32,8 @@ public static class GenerateInvoiceEndpoint
                 ?? Guid.NewGuid().ToString("N");
 
             var command = new GenerateInvoiceCommand(
-                body.PatientId, body.PractitionerId, body.ProfessionCode, body.InamiCodeStr, body.BaseAmount, idempotencyKey);
+                body.PatientId, body.PractitionerId, body.ProfessionCode, body.InamiCodeStr, body.BaseAmount,
+                idempotencyKey, body.PatientShareAmount, body.ThirdPartyPayer);
             var result = await sender.Send(command, ct);
             return result.ToHttpResult();
         })

@@ -57,12 +57,27 @@ public class GenerateInvoiceHandler : ICommandHandler<GenerateInvoiceCommand, Re
         // Vérification d'assurabilité MyCareNet — obligatoire avant toute facturation (§4.3).
         var isInsured = await _myCareNet.VerifyAssurabilityAsync(request.PatientId, cancellationToken);
 
-        var invoice = Invoice.CreateNew(
-            request.PatientId,
-            request.PractitionerId,
-            code,
-            Amount.Create(request.BaseAmount),
-            isInsured);
+        // Statut BIM/OMNIO informatif (snapshot) — la part patient reste fournie par
+        // l'appelant, cf. IPatientDirectory.HasPreferentialRateAsync.
+        var hasPreferentialRate = await _patients.HasPreferentialRateAsync(request.PatientId, cancellationToken);
+
+        Invoice invoice;
+        try
+        {
+            invoice = Invoice.CreateNew(
+                request.PatientId,
+                request.PractitionerId,
+                code,
+                Amount.Create(request.BaseAmount),
+                isInsured,
+                hasPreferentialRate,
+                Amount.Create(request.PatientShareAmount ?? request.BaseAmount),
+                request.ThirdPartyPayer);
+        }
+        catch (DomainException ex)
+        {
+            return BusinessFailures.Rule<Guid>(ex.Message);
+        }
 
         _context.Invoices.Add(invoice);
         // Commit par le UnitOfWorkBehavior (ITransactionalRequest) ; l'InvoiceGeneratedEvent
