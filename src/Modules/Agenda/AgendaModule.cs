@@ -4,8 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 using OmniCare.Modules.Agenda.Features.CancelAppointment;
 using OmniCare.Modules.Agenda.Features.ChangeAppointmentStatus;
 using OmniCare.Modules.Agenda.Features.DefineAppointmentType;
+using OmniCare.Modules.Agenda.Features.FulfillWaitlistEntry;
 using OmniCare.Modules.Agenda.Features.GetCabinetSchedule;
 using OmniCare.Modules.Agenda.Features.GetPractitionerSchedule;
+using OmniCare.Modules.Agenda.Features.GetWaitlist;
+using OmniCare.Modules.Agenda.Features.JoinWaitlist;
+using OmniCare.Modules.Agenda.Features.LeaveWaitlist;
 using OmniCare.Modules.Agenda.Features.RescheduleAppointment;
 using OmniCare.Modules.Agenda.Features.ScheduleAppointment;
 using OmniCare.Modules.Agenda.Features.ScheduleAppointmentSeries;
@@ -35,6 +39,10 @@ public static class AgendaModule
         app.MapChangeAppointmentStatus();
         app.MapGetPractitionerSchedule();
         app.MapGetCabinetSchedule();
+        app.MapJoinWaitlist();
+        app.MapLeaveWaitlist();
+        app.MapFulfillWaitlistEntry();
+        app.MapGetWaitlist();
         return app;
     }
 }
