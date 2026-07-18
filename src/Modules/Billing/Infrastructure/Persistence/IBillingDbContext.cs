@@ -7,5 +7,6 @@ namespace OmniCare.Modules.Billing.Infrastructure.Persistence;
 public interface IBillingDbContext
 {
     DbSet<Invoice> Invoices { get; }
+    DbSet<ActCatalogEntry> ActCatalogEntries { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

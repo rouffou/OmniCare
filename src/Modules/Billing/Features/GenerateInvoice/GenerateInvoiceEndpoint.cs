@@ -12,6 +12,7 @@ public static class GenerateInvoiceEndpoint
     public record GenerateInvoiceRequest(
         Guid PatientId,
         Guid PractitionerId,
+        string ProfessionCode,
         string InamiCodeStr,
         decimal BaseAmount);
 
@@ -29,7 +30,7 @@ public static class GenerateInvoiceEndpoint
                 ?? Guid.NewGuid().ToString("N");
 
             var command = new GenerateInvoiceCommand(
-                body.PatientId, body.PractitionerId, body.InamiCodeStr, body.BaseAmount, idempotencyKey);
+                body.PatientId, body.PractitionerId, body.ProfessionCode, body.InamiCodeStr, body.BaseAmount, idempotencyKey);
             var result = await sender.Send(command, ct);
             return result.ToHttpResult();
         })

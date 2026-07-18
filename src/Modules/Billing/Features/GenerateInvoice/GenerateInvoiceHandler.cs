@@ -1,5 +1,6 @@
 using Mediarq.Core.Common.Requests.Command;
 using Mediarq.Core.Common.Results;
+using Microsoft.EntityFrameworkCore;
 using OmniCare.Modules.Billing.Domain.Entities;
 using OmniCare.Modules.Billing.Domain.ValueObjects;
 using OmniCare.Modules.Billing.Infrastructure.Persistence;
@@ -28,8 +29,7 @@ public class GenerateInvoiceHandler : ICommandHandler<GenerateInvoiceCommand, Re
         if (!await _patients.ExistsAsync(request.PatientId, cancellationToken))
             return BusinessFailures.NotFound<Guid>($"Patient {request.PatientId} introuvable.");
 
-        // Validation métier via les Value Objects du Domaine (la validité du code pour
-        // la profession du praticien relèvera du référentiel d'actes configurable).
+        // Validation métier via les Value Objects du Domaine.
         InamiCode code;
         try
         {
@@ -39,6 +39,20 @@ public class GenerateInvoiceHandler : ICommandHandler<GenerateInvoiceCommand, Re
         {
             return BusinessFailures.Rule<Guid>(ex.Message);
         }
+
+        var profession = HealthProfession.FromCode(request.ProfessionCode);
+
+        // Le code doit exister au référentiel d'actes de la profession du praticien —
+        // pas de logique de validation codée en dur par profession (cahier des charges §4.6).
+        var catalogEntry = await _context.ActCatalogEntries
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Profession == profession && e.Code == code, cancellationToken);
+        if (catalogEntry is null)
+            return BusinessFailures.NotFound<Guid>(
+                $"Aucun acte {code.Value} au référentiel de la profession {profession.Code}.");
+        if (!catalogEntry.IsActive)
+            return BusinessFailures.Rule<Guid>(
+                $"L'acte « {catalogEntry.Label} » ({code.Value}) est désactivé pour la profession {profession.Code}.");
 
         // Vérification d'assurabilité MyCareNet — obligatoire avant toute facturation (§4.3).
         var isInsured = await _myCareNet.VerifyAssurabilityAsync(request.PatientId, cancellationToken);
