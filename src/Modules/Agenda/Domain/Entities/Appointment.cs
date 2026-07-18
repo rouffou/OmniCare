@@ -38,7 +38,7 @@ public sealed class Appointment : AggregateRoot
         Guid appointmentTypeId,
         TimeSlot slot,
         string? notes = null,
-        Guid? roomId = null)
+        Guid? roomId = null,
         Guid? seriesId = null)
     {
         if (practitionerId == Guid.Empty)
