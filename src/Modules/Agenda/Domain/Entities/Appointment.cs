@@ -15,6 +15,8 @@ public sealed class Appointment : AggregateRoot
     public Guid PatientId { get; private set; }
     public Guid AppointmentTypeId { get; private set; }
 
+    /// <summary>Salle/équipement réservé, si le cabinet en gère (§4.2, optionnel).</summary>
+    public Guid? RoomId { get; private set; }
     /// <summary>Identifiant commun aux rendez-vous d'une même série récurrente (null si occurrence isolée).</summary>
     public Guid? SeriesId { get; private set; }
 
@@ -36,6 +38,7 @@ public sealed class Appointment : AggregateRoot
         Guid appointmentTypeId,
         TimeSlot slot,
         string? notes = null,
+        Guid? roomId = null,
         Guid? seriesId = null)
     {
         if (practitionerId == Guid.Empty)
@@ -50,6 +53,7 @@ public sealed class Appointment : AggregateRoot
             PractitionerId = practitionerId,
             PatientId = patientId,
             AppointmentTypeId = appointmentTypeId,
+            RoomId = roomId,
             SeriesId = seriesId,
             Slot = slot,
             Status = AppointmentStatus.Planned,
