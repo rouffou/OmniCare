@@ -82,4 +82,30 @@ public class AppointmentTests
         appointment.Cancel(null);
         Assert.Throws<DomainException>(() => appointment.Reschedule(Tomorrow(14)));
     }
+
+    [Fact]
+    public void MarkReminderSent_records_timestamp_and_raises_event()
+    {
+        var appointment = NewAppointment();
+        appointment.MarkReminderSent();
+        Assert.NotNull(appointment.ReminderSentOn);
+        Assert.Contains(appointment.DomainEvents, e => e is AppointmentReminderSentEvent);
+    }
+
+    [Fact]
+    public void MarkReminderSent_twice_throws()
+    {
+        var appointment = NewAppointment();
+        appointment.MarkReminderSent();
+        Assert.Throws<DomainException>(() => appointment.MarkReminderSent());
+    }
+
+    [Fact]
+    public void Reschedule_clears_previous_reminder()
+    {
+        var appointment = NewAppointment();
+        appointment.MarkReminderSent();
+        appointment.Reschedule(Tomorrow(14));
+        Assert.Null(appointment.ReminderSentOn);
+    }
 }

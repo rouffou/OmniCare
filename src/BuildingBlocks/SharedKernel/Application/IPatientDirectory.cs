@@ -22,8 +22,9 @@ public interface IPatientDirectory
     Task<bool> HasPreferentialRateAsync(Guid patientId, CancellationToken cancellationToken = default);
 
     /// <summary>Identité utilisée pour les documents de facturation (cahier des charges
-    /// §4.3) — l'adresse est <see langword="null"/> si le patient ne l'a pas renseignée
-    /// (optionnelle côté fiche patient, cf. <c>ContactDetails</c>).</summary>
+    /// §4.3) et les rappels de rendez-vous (§4.2, ticket #27) — l'adresse/l'email/le
+    /// téléphone sont <see langword="null"/> si le patient ne les a pas renseignés
+    /// (optionnels côté fiche patient, cf. <c>ContactDetails</c>).</summary>
     Task<PatientIdentity?> GetIdentityAsync(Guid patientId, CancellationToken cancellationToken = default);
 }
 
@@ -32,4 +33,7 @@ public sealed record PatientIdentity(
     string FullName,
     string? AddressLine,
     string? PostalCode,
-    string? City);
+    string? City,
+    string? Email,
+    string? Phone,
+    bool HasElectronicCommunicationConsent);

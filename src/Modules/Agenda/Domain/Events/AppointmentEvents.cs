@@ -27,3 +27,11 @@ public sealed record AppointmentCompletedEvent(
 {
     public DateTimeOffset OccurredOn { get; } = DateTimeOffset.UtcNow;
 }
+
+public sealed record AppointmentReminderSentEvent(
+    Guid AppointmentId,
+    Guid PatientId,
+    Guid PractitionerId) : IDomainEvent
+{
+    public DateTimeOffset OccurredOn { get; } = DateTimeOffset.UtcNow;
+}

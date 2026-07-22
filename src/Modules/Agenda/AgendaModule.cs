@@ -14,7 +14,9 @@ using OmniCare.Modules.Agenda.Features.LeaveWaitlist;
 using OmniCare.Modules.Agenda.Features.RescheduleAppointment;
 using OmniCare.Modules.Agenda.Features.ScheduleAppointment;
 using OmniCare.Modules.Agenda.Features.ScheduleAppointmentSeries;
+using OmniCare.Modules.Agenda.Features.SendAppointmentReminders;
 using OmniCare.Modules.Agenda.Infrastructure.Persistence;
+using OmniCare.Modules.Agenda.Infrastructure.Services;
 
 namespace OmniCare.Modules.Agenda;
 
@@ -27,6 +29,12 @@ public static class AgendaModule
     {
         services.AddDbContext<AgendaDbContext>(configureDb);
         services.AddScoped<IAgendaDbContext>(sp => sp.GetRequiredService<AgendaDbContext>());
+
+        // Rappels SMS/email (ticket #27) : fournisseur non choisi (pas de compte à créer),
+        // impl. de dev qui journalise — même principe que FakeMyCareNetService (Billing).
+        services.AddSingleton<INotificationSender, FakeNotificationSender>();
+        services.AddHostedService<AppointmentReminderBackgroundService>();
+
         return services;
     }
 
@@ -45,6 +53,7 @@ public static class AgendaModule
         app.MapLeaveWaitlist();
         app.MapFulfillWaitlistEntry();
         app.MapGetWaitlist();
+        app.MapSendAppointmentReminders();
         return app;
     }
 }
