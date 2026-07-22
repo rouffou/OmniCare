@@ -14,6 +14,9 @@ using OmniCare.Modules.Billing.Infrastructure.Persistence;
 using OmniCare.Modules.Patients;
 using OmniCare.Modules.Patients.Features.RegisterPatient;
 using OmniCare.Modules.Patients.Infrastructure.Persistence;
+using OmniCare.Modules.Practitioners;
+using OmniCare.Modules.Practitioners.Features.RegisterCabinet;
+using OmniCare.Modules.Practitioners.Infrastructure.Persistence;
 using OmniCare.SharedKernel.Application;
 using OmniCare.SharedKernel.Application.Auditing;
 using OmniCare.SharedKernel.Application.Behaviors;
@@ -34,6 +37,7 @@ builder.Services.AddValidatorsFromAssemblies(
     typeof(RegisterPatientCommand).Assembly,
     typeof(OmniCare.Modules.Agenda.AgendaModule).Assembly,
     typeof(BillingModule).Assembly,
+    typeof(RegisterCabinetCommand).Assembly,
 ]);
 builder.Services.AddMediarqFluentValidation();
 
@@ -41,7 +45,8 @@ builder.Services.AddMediarq(
         isHttp: true,
         typeof(RegisterPatientCommand).Assembly,
         typeof(OmniCare.Modules.Agenda.AgendaModule).Assembly,
-        typeof(BillingModule).Assembly)
+        typeof(BillingModule).Assembly,
+        typeof(RegisterCabinetCommand).Assembly)
     .AddMediarqRequestLogging();
 
 // Idempotence des commandes de facturation (IIdempotentRequest) — IDistributedCache
@@ -74,6 +79,8 @@ builder.Services.AddAgendaModule(o => o.UseSqlite(
     builder.Configuration.GetConnectionString("Agenda") ?? "Data Source=omnicare-agenda.db"));
 builder.Services.AddBillingModule(o => o.UseSqlite(
     builder.Configuration.GetConnectionString("Billing") ?? "Data Source=omnicare-billing.db"));
+builder.Services.AddPractitionersModule(o => o.UseSqlite(
+    builder.Configuration.GetConnectionString("Practitioners") ?? "Data Source=omnicare-practitioners.db"));
 
 // Outbox transactionnel pour InvoiceGeneratedEvent (télétransmission eAttest fiable —
 // cf. GenerateInvoiceHandler). Intervalle court en dev pour un retour rapide ; à ajuster
@@ -94,11 +101,13 @@ if (app.Environment.IsDevelopment())
     scope.ServiceProvider.GetRequiredService<PatientsDbContext>().Database.Migrate();
     scope.ServiceProvider.GetRequiredService<AgendaDbContext>().Database.Migrate();
     scope.ServiceProvider.GetRequiredService<BillingDbContext>().Database.Migrate();
+    scope.ServiceProvider.GetRequiredService<PractitionersDbContext>().Database.Migrate();
 }
 
 app.MapPatientsModule();
 app.MapAgendaModule();
 app.MapBillingModule();
+app.MapPractitionersModule();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }))
     .WithName("HealthCheck");
