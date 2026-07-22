@@ -3,6 +3,7 @@ using Mediarq.Extensions;
 using Mediarq.FluentValidation;
 using Mediarq.Outbox;
 using Mediarq.UnitOfWork;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using OmniCare.Api.Infrastructure;
 using OmniCare.Api.Infrastructure.Auditing;
@@ -72,6 +73,28 @@ builder.Services.AddScoped(
 builder.Services.AddScoped<ICurrentUserService, HttpCurrentUserService>();
 builder.Services.AddScoped<IAuditTrailStore, EfCoreAuditTrailStore>();
 
+// --- Authentification : JWT Bearer OIDC générique (ticket #26, cahier des charges §5.1) ---
+// Indépendant du fournisseur (Authority/Audience configurables) — le MFA est délégué au
+// fournisseur d'identité, OmniCare ne stocke jamais de mot de passe ni de secret TOTP.
+// Authority vide tant qu'aucun fournisseur n'est choisi : la validation d'un token échoue
+// alors simplement (une requête sans Authorization header n'est pas affectée). Infrastructure
+// seule pour l'instant — aucun [Authorize]/RequireAuthorization n'est encore actif sur les
+// endpoints métier, cf. /api/me pour la démonstration du câblage ; l'activation par endpoint
+// est un ticket suivant, module par module.
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["Authentication:Authority"];
+        options.Audience = builder.Configuration["Authentication:Audience"];
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+    });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(Roles.Practitioner, p => p.RequireRole(Roles.Practitioner))
+    .AddPolicy(Roles.Secretariat, p => p.RequireRole(Roles.Secretariat))
+    .AddPolicy(Roles.Admin, p => p.RequireRole(Roles.Admin))
+    .AddPolicy(Roles.Patient, p => p.RequireRole(Roles.Patient));
+
 // --- Persistance (SQLite en dev ; hébergeur certifié données de santé en prod, §5.2) ---
 // Une base par module : isolation des données conforme au découpage modulaire, et
 // EnsureCreated fonctionne par contexte (il ne crée rien dans une base déjà peuplée).
@@ -95,6 +118,9 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Dev uniquement : application automatique des migrations EF Core au démarrage.
 // En production, les migrations seront appliquées par le pipeline de déploiement
 // (dotnet ef database update), jamais par l'application elle-même.
@@ -115,5 +141,13 @@ app.MapPractitionersModule();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }))
     .WithName("HealthCheck");
+
+// Démontre le câblage de l'authentification (ticket #26) : 401 sans token valide.
+// Endpoint de diagnostic, pas une slice métier — pas de [Authorize(Roles=...)] spécifique,
+// n'importe quel utilisateur authentifié peut voir sa propre identité.
+app.MapGet("/api/me", (ICurrentUserService currentUser) =>
+        Results.Ok(new { currentUser.UserId, currentUser.DisplayName, currentUser.Roles }))
+    .RequireAuthorization()
+    .WithName("Me");
 
 app.Run();

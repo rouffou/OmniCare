@@ -6,7 +6,9 @@
     <PackageVersion Include="Mediarq.EntityFrameworkCore" Version="1.0.0" />
     <PackageVersion Include="Mediarq.Idempotency" Version="1.0.0" />
     <PackageVersion Include="Mediarq.Outbox" Version="1.0.0" />
-
+    <!-- Authentification : JWT Bearer OIDC générique (Authority/Audience configurables,
+         ticket #26) — indépendant du fournisseur d'identité choisi. -->
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
     <!-- Persistance -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.10" />
@@ -15,7 +17,6 @@
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.4" />
     <!-- Outillage migrations (design-time uniquement) -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10" />
-
     <!-- Validation -->
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
