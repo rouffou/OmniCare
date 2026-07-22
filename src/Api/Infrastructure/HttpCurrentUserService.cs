@@ -1,11 +1,12 @@
+using System.Security.Claims;
 using OmniCare.SharedKernel.Application;
 
 namespace OmniCare.Api.Infrastructure;
 
 /// <summary>
-/// Utilisateur courant depuis le HttpContext. Tant que l'authentification forte
-/// (MFA, exigence §5.1) n'est pas branchée, retombe sur un utilisateur « system »
-/// — à remplacer lors de l'intégration de l'identité (eHealth IAM / OIDC).
+/// Utilisateur courant depuis les claims du token JWT (ticket #26). Tant qu'aucun
+/// fournisseur d'identité réel n'est configuré (Authority vide) ou qu'aucun token
+/// n'est présenté, retombe sur une identité « system » anonyme sans rôle.
 /// </summary>
 public sealed class HttpCurrentUserService : ICurrentUserService
 {
@@ -16,8 +17,18 @@ public sealed class HttpCurrentUserService : ICurrentUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string UserId =>
-        _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "system";
+    private ClaimsPrincipal? User => _httpContextAccessor.HttpContext?.User;
 
-    public string DisplayName => UserId;
+    public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
+
+    public string UserId =>
+        (IsAuthenticated ? User!.FindFirstValue(ClaimTypes.NameIdentifier) : null) ?? "system";
+
+    public string DisplayName =>
+        (IsAuthenticated ? User!.FindFirstValue(ClaimTypes.Name) : null) ?? UserId;
+
+    public IReadOnlyCollection<string> Roles =>
+        IsAuthenticated
+            ? User!.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray()
+            : [];
 }
