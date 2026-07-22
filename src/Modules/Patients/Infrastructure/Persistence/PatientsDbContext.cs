@@ -49,6 +49,9 @@ public sealed class PatientsDbContext : ModuleDbContext, IPatientsDbContext
             patient.Property(p => p.TreatingPhysicianName).HasMaxLength(200);
             patient.Property(p => p.EmergencyContact).HasMaxLength(300);
 
+            patient.Property(p => p.PortalUserId).HasMaxLength(255);
+            patient.HasIndex(p => p.PortalUserId).IsUnique();
+
             patient.HasMany(p => p.Consents)
                 .WithOne()
                 .HasForeignKey(c => c.PatientId)

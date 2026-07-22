@@ -26,6 +26,14 @@ public interface IPatientDirectory
     /// téléphone sont <see langword="null"/> si le patient ne les a pas renseignés
     /// (optionnels côté fiche patient, cf. <c>ContactDetails</c>).</summary>
     Task<PatientIdentity?> GetIdentityAsync(Guid patientId, CancellationToken cancellationToken = default);
+
+    /// <summary>Résout le <c>PatientId</c> à partir de l'identifiant de compte du portail
+    /// patient (claim <c>sub</c> du token OIDC, lié via <c>LinkPatientPortalAccount</c>,
+    /// ticket #39) — <see langword="null"/> si aucune fiche patient n'est liée à ce compte.
+    /// Permet aux endpoints portail des autres modules (Agenda, Billing) de retrouver le
+    /// patient courant sans jamais faire confiance à un PatientId fourni par le client.</summary>
+    Task<Guid?> ResolvePatientIdByPortalUserIdAsync(
+        string portalUserId, CancellationToken cancellationToken = default);
 }
 
 public sealed record PatientIdentity(

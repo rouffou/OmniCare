@@ -24,6 +24,11 @@ public sealed class Patient : AggregateRoot
     public PatientStatus Status { get; private set; }
     public DateTimeOffset RegisteredOn { get; private set; }
 
+    /// <summary>Identifiant de l'utilisateur du portail patient (claim <c>sub</c> du token
+    /// OIDC) — lié manuellement par le secrétariat après vérification d'identité (ticket
+    /// #39), jamais déduit automatiquement d'un claim métier propre au fournisseur.</summary>
+    public string? PortalUserId { get; private set; }
+
     private readonly List<Consent> _consents = [];
     public IReadOnlyCollection<Consent> Consents => _consents.AsReadOnly();
 
@@ -104,6 +109,14 @@ public sealed class Patient : AggregateRoot
         var active = _consents.FirstOrDefault(c => c.Type == type && c.IsActive)
             ?? throw new DomainException($"Aucun consentement actif de type {type} à révoquer.");
         active.Revoke();
+    }
+
+    public void LinkPortalAccount(string portalUserId)
+    {
+        EnsureActive();
+        if (string.IsNullOrWhiteSpace(portalUserId))
+            throw new DomainException("L'identifiant de compte portail ne peut pas être vide.");
+        PortalUserId = portalUserId.Trim();
     }
 
     public void Archive()

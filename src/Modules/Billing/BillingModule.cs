@@ -8,6 +8,8 @@ using OmniCare.Modules.Billing.Features.GetInvoiceById;
 using OmniCare.Modules.Billing.Features.GetInvoicePdf;
 using OmniCare.Modules.Billing.Features.ListPatientInvoices;
 using OmniCare.Modules.Billing.Features.MarkInvoicePaid;
+using OmniCare.Modules.Billing.Features.PortalGetMyInvoicePdf;
+using OmniCare.Modules.Billing.Features.PortalGetMyInvoices;
 using OmniCare.Modules.Billing.Features.RetryInvoiceTransmission;
 using OmniCare.Modules.Billing.Infrastructure.Persistence;
 using OmniCare.Modules.Billing.Infrastructure.Services;
@@ -40,6 +42,8 @@ public static class BillingModule
         app.MapCancelInvoice();
         app.MapListPatientInvoices();
         app.MapRetryInvoiceTransmission();
+        app.MapPortalGetMyInvoices();
+        app.MapPortalGetMyInvoicePdf();
         return app;
     }
 }

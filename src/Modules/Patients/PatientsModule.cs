@@ -12,7 +12,11 @@ using OmniCare.Modules.Patients.Features.DownloadClinicalDocument;
 using OmniCare.Modules.Patients.Features.GetClinicalRecord;
 using OmniCare.Modules.Patients.Features.GetPatientById;
 using OmniCare.Modules.Patients.Features.GrantConsent;
+using OmniCare.Modules.Patients.Features.LinkPatientPortalAccount;
 using OmniCare.Modules.Patients.Features.ListClinicalDocuments;
+using OmniCare.Modules.Patients.Features.PortalDownloadMyClinicalDocument;
+using OmniCare.Modules.Patients.Features.PortalGetMyClinicalRecord;
+using OmniCare.Modules.Patients.Features.PortalListMyClinicalDocuments;
 using OmniCare.Modules.Patients.Features.RecordClinicalEntry;
 using OmniCare.Modules.Patients.Features.RegisterClinicalDocument;
 using OmniCare.Modules.Patients.Features.RegisterPatient;
@@ -77,6 +81,10 @@ public static class PatientsModule
         app.MapRegisterClinicalDocument();
         app.MapListClinicalDocuments();
         app.MapDownloadClinicalDocument();
+        app.MapLinkPatientPortalAccount();
+        app.MapPortalGetMyClinicalRecord();
+        app.MapPortalListMyClinicalDocuments();
+        app.MapPortalDownloadClinicalDocument();
         return app;
     }
 }

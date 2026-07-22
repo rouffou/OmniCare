@@ -48,4 +48,13 @@ internal sealed class PatientDirectory : IPatientDirectory
             patient.Contact.Phone,
             hasElectronicCommunicationConsent);
     }
+
+    public async Task<Guid?> ResolvePatientIdByPortalUserIdAsync(
+        string portalUserId, CancellationToken cancellationToken = default)
+    {
+        var patient = await _context.Patients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.PortalUserId == portalUserId, cancellationToken);
+        return patient?.Id;
+    }
 }
