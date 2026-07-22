@@ -15,6 +15,7 @@ public sealed class PatientsDbContext : ModuleDbContext, IPatientsDbContext
 
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<ClinicalRecord> ClinicalRecords => Set<ClinicalRecord>();
+    public DbSet<ClinicalDocument> ClinicalDocuments => Set<ClinicalDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -81,6 +82,11 @@ public sealed class PatientsDbContext : ModuleDbContext, IPatientsDbContext
                 .WithOne()
                 .HasForeignKey(p => p.ClinicalRecordId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            record.HasMany(r => r.Documents)
+                .WithOne()
+                .HasForeignKey(d => d.ClinicalRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ClinicalEntry>(entry =>
@@ -95,6 +101,15 @@ public sealed class PatientsDbContext : ModuleDbContext, IPatientsDbContext
             prescription.ToTable("Prescriptions");
             prescription.HasKey(p => p.Id);
             prescription.Property(p => p.PrescriberName).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<ClinicalDocument>(document =>
+        {
+            document.ToTable("ClinicalDocuments");
+            document.HasKey(d => d.Id);
+            document.Property(d => d.FileName).HasMaxLength(255);
+            document.Property(d => d.ContentType).HasMaxLength(100);
+            document.Property(d => d.StorageKey).HasMaxLength(64);
         });
 
         UseClientGeneratedIds(modelBuilder);

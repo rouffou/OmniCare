@@ -29,3 +29,12 @@ public sealed record PrescriptionRegisteredEvent(
 {
     public DateTimeOffset OccurredOn { get; } = DateTimeOffset.UtcNow;
 }
+
+public sealed record ClinicalDocumentAddedEvent(
+    Guid ClinicalRecordId,
+    Guid PatientId,
+    Guid DocumentId,
+    Guid UploadedByPractitionerId) : IDomainEvent
+{
+    public DateTimeOffset OccurredOn { get; } = DateTimeOffset.UtcNow;
+}

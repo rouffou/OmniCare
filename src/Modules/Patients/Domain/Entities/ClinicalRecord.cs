@@ -23,6 +23,9 @@ public sealed class ClinicalRecord : AggregateRoot
     private readonly List<Prescription> _prescriptions = [];
     public IReadOnlyCollection<Prescription> Prescriptions => _prescriptions.AsReadOnly();
 
+    private readonly List<ClinicalDocument> _documents = [];
+    public IReadOnlyCollection<ClinicalDocument> Documents => _documents.AsReadOnly();
+
 #pragma warning disable CS8618 // Constructeur de matérialisation EF Core
     private ClinicalRecord()
     {
@@ -68,6 +71,21 @@ public sealed class ClinicalRecord : AggregateRoot
         _prescriptions.Add(prescription);
         Raise(new PrescriptionRegisteredEvent(Id, PatientId, prescription.Id, sessionsPrescribed));
         return prescription;
+    }
+
+    public ClinicalDocument AddDocument(
+        ClinicalDocumentType type,
+        string fileName,
+        string contentType,
+        long sizeBytes,
+        string storageKey,
+        Guid uploadedByPractitionerId)
+    {
+        var document = ClinicalDocument.Create(
+            Id, type, fileName, contentType, sizeBytes, storageKey, uploadedByPractitionerId);
+        _documents.Add(document);
+        Raise(new ClinicalDocumentAddedEvent(Id, PatientId, document.Id, uploadedByPractitionerId));
+        return document;
     }
 
     /// <summary>

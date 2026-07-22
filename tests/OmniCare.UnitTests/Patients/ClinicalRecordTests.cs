@@ -86,4 +86,40 @@ public class ClinicalRecordTests
         Assert.NotNull(record.ConsumeSessionFromOldestOpenPrescription());
         Assert.Null(record.ConsumeSessionFromOldestOpenPrescription());
     }
+
+    [Fact]
+    public void AddDocument_records_metadata_and_raises_event()
+    {
+        var record = NewRecord();
+        var practitionerId = Guid.NewGuid();
+
+        var document = record.AddDocument(
+            ClinicalDocumentType.Prescription, "ordonnance.pdf", "application/pdf", 1024,
+            "storage-key-abc", practitionerId);
+
+        Assert.Single(record.Documents);
+        Assert.Equal("ordonnance.pdf", document.FileName);
+        Assert.Equal(practitionerId, document.UploadedByPractitionerId);
+        Assert.Contains(record.DomainEvents, e =>
+            e is ClinicalDocumentAddedEvent added && added.DocumentId == document.Id);
+    }
+
+    [Theory]
+    [InlineData("", "application/pdf", 1024)]
+    [InlineData("ordonnance.pdf", "", 1024)]
+    [InlineData("ordonnance.pdf", "application/pdf", 0)]
+    public void AddDocument_rejects_invalid_metadata(string fileName, string contentType, long sizeBytes)
+    {
+        var record = NewRecord();
+        Assert.Throws<DomainException>(() => record.AddDocument(
+            ClinicalDocumentType.Other, fileName, contentType, sizeBytes, "key", Guid.NewGuid()));
+    }
+
+    [Fact]
+    public void AddDocument_rejects_missing_uploader()
+    {
+        var record = NewRecord();
+        Assert.Throws<DomainException>(() => record.AddDocument(
+            ClinicalDocumentType.Imaging, "irm.jpg", "image/jpeg", 2048, "key", Guid.Empty));
+    }
 }

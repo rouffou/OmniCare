@@ -17,4 +17,9 @@
     <ProjectReference Include="..\..\BuildingBlocks\SharedKernel\OmniCare.SharedKernel.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Test dédié au chiffrement AES-256-GCM (EncryptedLocalFileStorage, ticket #31). -->
+    <InternalsVisibleTo Include="OmniCare.UnitTests" />
+  </ItemGroup>
+
 </Project>
