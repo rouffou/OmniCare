@@ -21,6 +21,10 @@ using OmniCare.SharedKernel.Application;
 using OmniCare.SharedKernel.Application.Auditing;
 using OmniCare.SharedKernel.Application.Behaviors;
 
+// Édition Community (gratuite sous 1M$ de revenu annuel, cf. Directory.Packages.props) —
+// requis par QuestPDF avant toute génération de document (GetInvoicePdf, ticket #38).
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLogging();
