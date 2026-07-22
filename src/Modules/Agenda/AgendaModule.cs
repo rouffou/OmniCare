@@ -11,6 +11,10 @@ using OmniCare.Modules.Agenda.Features.GetPractitionerSchedule;
 using OmniCare.Modules.Agenda.Features.GetWaitlist;
 using OmniCare.Modules.Agenda.Features.JoinWaitlist;
 using OmniCare.Modules.Agenda.Features.LeaveWaitlist;
+using OmniCare.Modules.Agenda.Features.ListAppointmentTypes;
+using OmniCare.Modules.Agenda.Features.PortalCancelMyAppointment;
+using OmniCare.Modules.Agenda.Features.PortalGetMyAppointments;
+using OmniCare.Modules.Agenda.Features.PortalScheduleMyAppointment;
 using OmniCare.Modules.Agenda.Features.RescheduleAppointment;
 using OmniCare.Modules.Agenda.Features.ScheduleAppointment;
 using OmniCare.Modules.Agenda.Features.ScheduleAppointmentSeries;
@@ -54,6 +58,10 @@ public static class AgendaModule
         app.MapFulfillWaitlistEntry();
         app.MapGetWaitlist();
         app.MapSendAppointmentReminders();
+        app.MapListAppointmentTypes();
+        app.MapPortalGetMyAppointments();
+        app.MapPortalScheduleMyAppointment();
+        app.MapPortalCancelAppointment();
         return app;
     }
 }

@@ -82,4 +82,29 @@ public class PatientTests
         patient.Archive();
         Assert.Equal(PatientStatus.Archived, patient.Status);
     }
+
+    [Fact]
+    public void LinkPortalAccount_sets_portal_user_id()
+    {
+        var patient = NewPatient();
+        patient.LinkPortalAccount("oidc|abc123");
+        Assert.Equal("oidc|abc123", patient.PortalUserId);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void LinkPortalAccount_rejects_empty_id(string portalUserId)
+    {
+        var patient = NewPatient();
+        Assert.Throws<DomainException>(() => patient.LinkPortalAccount(portalUserId));
+    }
+
+    [Fact]
+    public void Archived_patient_rejects_portal_account_linking()
+    {
+        var patient = NewPatient();
+        patient.Archive();
+        Assert.Throws<DomainException>(() => patient.LinkPortalAccount("oidc|abc123"));
+    }
 }
