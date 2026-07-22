@@ -25,6 +25,9 @@ public sealed class Appointment : AggregateRoot
     public string? Notes { get; private set; }
     public string? CancellationReason { get; private set; }
     public DateTimeOffset CreatedOn { get; private set; }
+    /// <summary>Horodatage du dernier rappel SMS/email envoyé au patient (§4.2, ticket #27),
+    /// <see langword="null"/> si aucun rappel n'a encore été envoyé pour ce créneau.</summary>
+    public DateTimeOffset? ReminderSentOn { get; private set; }
 
 #pragma warning disable CS8618 // Constructeur de matérialisation EF Core
     private Appointment()
@@ -78,6 +81,16 @@ public sealed class Appointment : AggregateRoot
         Slot = newSlot;
         // Un déplacement invalide la confirmation : le patient doit reconfirmer.
         Status = AppointmentStatus.Planned;
+        // Un rappel envoyé pour l'ancien créneau ne concerne plus le nouveau.
+        ReminderSentOn = null;
+    }
+
+    public void MarkReminderSent()
+    {
+        if (ReminderSentOn is not null)
+            throw new DomainException("Un rappel a déjà été envoyé pour ce rendez-vous.");
+        ReminderSentOn = DateTimeOffset.UtcNow;
+        Raise(new AppointmentReminderSentEvent(Id, PatientId, PractitionerId));
     }
 
     public void MarkAsCompleted()

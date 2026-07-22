@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OmniCare.Modules.Patients.Domain.Entities;
 using OmniCare.Modules.Patients.Infrastructure.Persistence;
 using OmniCare.SharedKernel.Application;
 
@@ -29,15 +30,22 @@ internal sealed class PatientDirectory : IPatientDirectory
     {
         var patient = await _context.Patients
             .AsNoTracking()
+            .Include(p => p.Consents)
             .FirstOrDefaultAsync(p => p.Id == patientId, cancellationToken);
         if (patient is null)
             return null;
+
+        var hasElectronicCommunicationConsent = patient.Consents
+            .Any(c => c.Type == ConsentType.ElectronicCommunication && c.IsActive);
 
         return new PatientIdentity(
             patient.Id,
             patient.Name.FullName,
             patient.Contact.AddressLine,
             patient.Contact.PostalCode,
-            patient.Contact.City);
+            patient.Contact.City,
+            patient.Contact.Email,
+            patient.Contact.Phone,
+            hasElectronicCommunicationConsent);
     }
 }

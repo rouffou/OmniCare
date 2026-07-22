@@ -50,6 +50,9 @@ namespace OmniCare.Modules.Agenda.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("RoomId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("SeriesId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
@@ -62,6 +65,8 @@ namespace OmniCare.Modules.Agenda.Infrastructure.Persistence.Migrations
                     b.HasIndex("PractitionerId");
 
                     b.HasIndex("RoomId");
+
+                    b.HasIndex("SeriesId");
 
                     b.ToTable("Appointments", "agenda");
                 });
