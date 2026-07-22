@@ -24,4 +24,20 @@ internal sealed class PatientDirectory : IPatientDirectory
             .FirstOrDefaultAsync(p => p.Id == patientId, cancellationToken);
         return patient?.Mutuality?.HasPreferentialRate ?? false;
     }
+
+    public async Task<PatientIdentity?> GetIdentityAsync(Guid patientId, CancellationToken cancellationToken = default)
+    {
+        var patient = await _context.Patients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == patientId, cancellationToken);
+        if (patient is null)
+            return null;
+
+        return new PatientIdentity(
+            patient.Id,
+            patient.Name.FullName,
+            patient.Contact.AddressLine,
+            patient.Contact.PostalCode,
+            patient.Contact.City);
+    }
 }

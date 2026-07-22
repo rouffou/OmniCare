@@ -20,4 +20,16 @@ public interface IPatientDirectory
     /// tracer et informer la décision prise par le secrétariat au moment de facturer.
     /// </summary>
     Task<bool> HasPreferentialRateAsync(Guid patientId, CancellationToken cancellationToken = default);
+
+    /// <summary>Identité utilisée pour les documents de facturation (cahier des charges
+    /// §4.3) — l'adresse est <see langword="null"/> si le patient ne l'a pas renseignée
+    /// (optionnelle côté fiche patient, cf. <c>ContactDetails</c>).</summary>
+    Task<PatientIdentity?> GetIdentityAsync(Guid patientId, CancellationToken cancellationToken = default);
 }
+
+public sealed record PatientIdentity(
+    Guid PatientId,
+    string FullName,
+    string? AddressLine,
+    string? PostalCode,
+    string? City);

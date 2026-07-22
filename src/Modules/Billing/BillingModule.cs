@@ -5,6 +5,7 @@ using OmniCare.Modules.Billing.Features.CancelInvoice;
 using OmniCare.Modules.Billing.Features.DefineActCatalogEntry;
 using OmniCare.Modules.Billing.Features.GenerateInvoice;
 using OmniCare.Modules.Billing.Features.GetInvoiceById;
+using OmniCare.Modules.Billing.Features.GetInvoicePdf;
 using OmniCare.Modules.Billing.Features.ListPatientInvoices;
 using OmniCare.Modules.Billing.Features.MarkInvoicePaid;
 using OmniCare.Modules.Billing.Features.RetryInvoiceTransmission;
@@ -34,6 +35,7 @@ public static class BillingModule
         app.MapDefineActCatalogEntry();
         app.MapGenerateInvoice();
         app.MapGetInvoiceById();
+        app.MapGetInvoicePdf();
         app.MapMarkInvoicePaid();
         app.MapCancelInvoice();
         app.MapListPatientInvoices();
