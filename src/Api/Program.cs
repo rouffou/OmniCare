@@ -100,8 +100,9 @@ builder.Services.AddAuthorizationBuilder()
 // EnsureCreated fonctionne par contexte (il ne crée rien dans une base déjà peuplée).
 builder.Services.AddDbContext<AuditDbContext>(o => o.UseSqlite(
     builder.Configuration.GetConnectionString("Audit") ?? "Data Source=omnicare-audit.db"));
-builder.Services.AddPatientsModule(o => o.UseSqlite(
-    builder.Configuration.GetConnectionString("Patients") ?? "Data Source=omnicare-patients.db"));
+builder.Services.AddPatientsModule(
+    o => o.UseSqlite(builder.Configuration.GetConnectionString("Patients") ?? "Data Source=omnicare-patients.db"),
+    builder.Configuration);
 builder.Services.AddAgendaModule(o => o.UseSqlite(
     builder.Configuration.GetConnectionString("Agenda") ?? "Data Source=omnicare-agenda.db"));
 builder.Services.AddBillingModule(o => o.UseSqlite(
