@@ -1,11 +1,11 @@
 <Project>
   <ItemGroup>
     <!-- Médiateur CQRS (voir cahier_des_charges/architecture_technique_saas.md §1.2) -->
-    <PackageVersion Include="Mediarq" Version="1.0.0" />
-    <PackageVersion Include="Mediarq.Core" Version="1.0.0" />
-    <PackageVersion Include="Mediarq.EntityFrameworkCore" Version="1.0.0" />
-    <PackageVersion Include="Mediarq.Idempotency" Version="1.0.0" />
-    <PackageVersion Include="Mediarq.Outbox" Version="1.0.0" />
+    <PackageVersion Include="Mediarq" Version="1.5.1" />
+    <PackageVersion Include="Mediarq.Core" Version="1.5.1" />
+    <PackageVersion Include="Mediarq.EntityFrameworkCore" Version="1.5.1" />
+    <PackageVersion Include="Mediarq.Idempotency" Version="1.5.1" />
+    <PackageVersion Include="Mediarq.Outbox" Version="1.5.1" />
     <!-- Authentification : JWT Bearer OIDC générique (Authority/Audience configurables,
          ticket #26) — indépendant du fournisseur d'identité choisi. -->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
