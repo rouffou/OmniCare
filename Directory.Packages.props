@@ -23,7 +23,7 @@
 
     <!-- Documents PDF (facture patient, ticket #38) — édition Community, gratuite pour
          une structure sous 1M$ de revenu annuel ; à réévaluer si ce seuil est dépassé. -->
-    <PackageVersion Include="QuestPDF" Version="2026.7.1" />
+    <PackageVersion Include="QuestPDF" Version="2026.7.3" />
 
     <!-- Tests -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
