@@ -18,7 +18,7 @@
     <!-- Outillage migrations (design-time uniquement) -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10" />
     <!-- Validation -->
-    <PackageVersion Include="FluentValidation" Version="12.1.1" />
+    <PackageVersion Include="FluentValidation" Version="12.2.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
 
     <!-- Documents PDF (facture patient, ticket #38) — édition Community, gratuite pour
